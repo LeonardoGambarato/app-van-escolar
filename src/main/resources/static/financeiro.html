@@ -1,0 +1,494 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Financeiro</title>
+
+    <style>
+        *{margin:0;padding:0;box-sizing:border-box;}
+
+        body{
+            font-family:Arial;
+            background:#eef2f7;
+            display:flex;
+            color:#1f2937;
+        }
+
+        .sidebar{
+            width:250px;
+            height:100vh;
+            background:linear-gradient(180deg,#0f172a,#111827);
+            padding:25px;
+            position:fixed;
+        }
+
+        .logo{
+            color:white;
+            font-size:28px;
+            font-weight:bold;
+            margin-bottom:35px;
+            text-align:center;
+        }
+
+        .menu a{
+            display:block;
+            padding:14px;
+            margin-bottom:10px;
+            text-decoration:none;
+            color:#d1d5db;
+            border-radius:10px;
+        }
+
+        .menu a:hover{
+            background:#374151;
+            color:white;
+        }
+
+        .main{
+            margin-left:250px;
+            width:100%;
+            padding:30px;
+        }
+
+        .topbar,.box,.card{
+            background:#ffffff;
+            border:1px solid #e5e7eb;
+            box-shadow:0 8px 24px rgba(15,23,42,0.06);
+            border-radius:16px;
+        }
+
+        .topbar{
+            margin-bottom:25px;
+        }
+
+        .cards{
+            display:grid;
+            grid-template-columns:repeat(auto-fit,minmax(220px,1fr));
+            gap:20px;
+            margin-bottom:25px;
+        }
+
+        .card h3{
+            font-size:14px;
+            color:#6b7280;
+            margin-bottom:8px;
+        }
+
+        .card p{
+            font-size:30px;
+            font-weight:bold;
+            color:#2d89ef;
+        }
+
+        .box{
+            background:#fff;
+            padding:25px;
+            border-radius:16px;
+            margin-bottom:25px;
+            border:1px solid #e5e7eb;
+            box-shadow:0 8px 24px rgba(0,0,0,.05);
+        }
+
+        select{
+            padding:10px;
+            border-radius:10px;
+            border:1px solid #ddd;
+            margin-bottom:15px;
+        }
+
+        table{
+            width:100%;
+            border-collapse:collapse;
+            table-layout:fixed;
+        }
+
+        th,td{
+            padding:14px;
+            border-bottom:1px solid #eee;
+            text-align:left;
+        }
+        th:last-child,
+        td:last-child{
+            width:160px;
+            text-align:center;
+        }
+
+        th:nth-child(1),
+        td:nth-child(1){
+            width:40%;
+        }
+
+        th:nth-child(2),
+        td:nth-child(2){
+            width:20%;
+        }
+
+        th:nth-child(3),
+        td:nth-child(3){
+            width:20%;
+        }
+
+        th:nth-child(4),
+        td:nth-child(4){
+            width:20%;
+            text-align:center;
+            vertical-align:middle;
+        }
+
+        button{
+            width:120px;
+            height:38px;
+            display:inline-flex;
+            align-items:center;
+            justify-content:center;
+            gap:6px;
+            margin:auto;
+        }
+        .zap{
+            background:#25D366;
+            color:white;
+            border:none;
+            padding:10px 16px;
+            border-radius:10px;
+            font-weight:bold;
+            cursor:pointer;
+            transition:.2s;
+        }
+        .zap:hover{
+            transform:translateY(-1px);
+            opacity:.95;
+        }
+        tbody tr:hover{
+            background:#f8fafc;
+            transition:.2s;
+        }
+
+    </style>
+</head>
+
+<body>
+
+<div class="sidebar">
+
+    <div class="logo">🚐 App Van</div>
+
+    <div class="menu">
+        <a href="dashboard.html">Dashboard</a>
+        <a href="cadastro.html">Motoristas</a>
+        <a href="alunos.html">Alunos</a>
+        <a href="rotas.html">Rotas</a>
+        <a href="financeiro.html">Financeiro</a>
+        <a href="login.html">Sair</a>
+    </div>
+
+</div>
+
+<div class="main">
+
+    <div class="topbar">
+        <h1>Financeiro</h1>
+    </div>
+
+    <div class="cards">
+
+        <div class="card">
+            <h3>Receita do Mês</h3>
+            <p id="total">R$ 0</p>
+        </div>
+
+        <div class="card">
+            <h3>Recebidos Hoje</h3>
+            <p id="recebidoHoje">0</p>
+        </div>
+
+        <div class="card">
+            <h3>Atrasados</h3>
+            <p id="atrasados">0</p>
+        </div>
+
+        <div class="card">
+            <h3>Vencem Hoje</h3>
+            <p id="venceHoje">0</p>
+        </div>
+
+    </div>
+
+    <div class="box">
+        <h2 style="margin-bottom:20px;">Resumo Financeiro</h2>
+        <canvas id="graficoFinanceiro" height="90"></canvas>
+    </div>
+
+    <div class="box">
+
+        <select id="filtro" onchange="carregar()">
+            <option value="">Todos</option>
+            <option value="PAGO">Pagos</option>
+            <option value="PENDENTE">Pendentes</option>
+        </select>
+
+        <table>
+
+            <thead>
+            <tr>
+                <th>Aluno</th>
+                <th>Mensalidade</th>
+                <th>Status</th>
+                <th>Ação</th>
+            </tr>
+            </thead>
+
+            <tbody id="tabela"></tbody>
+
+        </table>
+
+    </div>
+
+</div>
+
+<script>
+
+    let grafico = null;
+
+    function calcularSituacao(a){
+
+        if(a.statusPagamento == "PAGO"){
+            return "🟢 Pago";
+        }
+
+        let hoje = new Date().getDate();
+        let venc = Number(a.diaVencimento || 0);
+
+        if(venc == hoje){
+            return "🟡 Vence Hoje";
+        }
+
+        if(venc < hoje){
+            return "🔴 Atrasado";
+        }
+
+        return "🟢 Em Dia";
+
+    }
+    function carregar(){
+
+        fetch("/alunos")
+            .then(r=>r.json())
+            .then(lista=>{
+
+                let filtro = document.getElementById("filtro").value;
+
+                let total = 0;
+                let recebidosHoje = 0;
+                let atrasados = 0;
+                let venceHoje = 0;
+
+                let recebidoValor = 0;
+                let pendenteValor = 0;
+
+                let hoje = new Date().getDate();
+
+                lista.forEach(a=>{
+
+                    let valor = Number(a.mensalidade || 0);
+
+                    total += valor;
+
+                    if(a.statusPagamento == "PAGO"){
+
+                        recebidosHoje++;
+                        recebidoValor += valor;
+
+                    }else{
+
+                        pendenteValor += valor;
+
+                        let venc = Number(a.diaVencimento || 0);
+
+                        if(venc < hoje){
+                            atrasados++;
+                        }
+
+                        if(venc == hoje){
+                            venceHoje++;
+                        }
+
+                    }
+
+                });
+
+                if(filtro){
+                    lista = lista.filter(a => a.statusPagamento == filtro);
+                }
+
+                let html = "";
+
+                lista.forEach(a=>{
+
+                    html += `
+<tr>
+<td>${a.nome}</td>
+<td>R$ ${a.mensalidade || 0}</td>
+<td>${calcularSituacao(a)}</td>
+<td>
+
+${
+                        a.statusPagamento == "PAGO"
+                            ?
+                            `<button class="reverter" onclick="voltar(${a.id})">↺ Voltar</button>`
+                            :
+                            `
+<button class="pago" onclick="pagar(${a.id})">✓ Pago</button>
+<button class="zap" onclick="cobrar(${a.id})">📲 Cobrar</button>
+`
+                    }
+
+</td>
+</tr>
+`;
+
+                });
+
+                tabela.innerHTML = html;
+
+                document.getElementById("total").innerHTML = "R$ " + total;
+                document.getElementById("recebidoHoje").innerHTML = recebidosHoje;
+                document.getElementById("atrasados").innerHTML = atrasados;
+                document.getElementById("venceHoje").innerHTML = venceHoje;
+
+                desenharGrafico(recebidoValor, pendenteValor);
+
+            });
+
+    }
+
+    function pagar(id){
+
+        fetch("/alunos")
+            .then(r=>r.json())
+            .then(lista=>{
+
+                let aluno = lista.find(a => a.id == id);
+
+                aluno.statusPagamento = "PAGO";
+
+                fetch("/alunos",{
+                    method:"POST",
+                    headers:{
+                        "Content-Type":"application/json"
+                    },
+                    body:JSON.stringify(aluno)
+                })
+                    .then(()=>carregar());
+
+            });
+
+    }
+    function voltar(id){
+
+        fetch("/alunos")
+            .then(r=>r.json())
+            .then(lista=>{
+
+                let aluno = lista.find(a => a.id == id);
+
+                aluno.statusPagamento = "PENDENTE";
+
+                fetch("/alunos",{
+                    method:"POST",
+                    headers:{
+                        "Content-Type":"application/json"
+                    },
+                    body:JSON.stringify(aluno)
+                })
+                    .then(()=>carregar());
+
+            });
+
+    }
+
+    carregar();
+
+    function cobrar(id){
+
+        fetch("/alunos")
+            .then(r=>r.json())
+            .then(lista=>{
+
+                let a = lista.find(x => x.id == id);
+
+                let numero = (a.telefoneResponsavel || "")
+                    .replace(/\D/g,'');
+
+                if(numero.length == 11){
+                    numero = "55" + numero;
+                }
+
+                let nomeResp = a.responsavel || "Responsável";
+                let aluno = a.nome || "";
+                let valor = a.mensalidade || 0;
+                let venc = a.diaVencimento || "-";
+
+                let msg =
+                    `Olá ${nomeResp} 😊
+
+Informamos que a mensalidade do transporte escolar referente ao aluno ${aluno} está pendente.
+
+💰 Valor: R$ ${valor}
+📅 Vencimento: dia ${venc}
+
+Pedimos a gentileza de regularizar.
+
+Obrigado!
+
+App Van 🚐`;
+
+                let url =
+                    `https://wa.me/${numero}?text=${encodeURIComponent(msg)}`;
+
+                window.open(url,'_blank');
+
+            });
+
+    }
+    function desenharGrafico(recebido, pendente){
+
+        let ctx = document.getElementById("graficoFinanceiro");
+
+        if(grafico){
+            grafico.destroy();
+        }
+
+        grafico = new Chart(ctx,{
+            type:"bar",
+            data:{
+                labels:["Recebido","Pendente"],
+                datasets:[{
+                    label:"R$",
+                    data:[recebido, pendente],
+                    borderWidth:1
+                }]
+            },
+            options:{
+                responsive:true,
+                plugins:{
+                    legend:{
+                        display:false
+                    }
+                },
+                scales:{
+                    y:{
+                        beginAtZero:true
+                    }
+                }
+            }
+        });
+
+    }
+
+</script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+
+</body>
+</html>

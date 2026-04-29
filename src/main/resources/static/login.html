@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <title>Login App Van</title>
+
+    <style>
+
+        body{
+            font-family:Arial;
+            background:#eef2f7;
+            display:flex;
+            justify-content:center;
+            align-items:center;
+            height:100vh;
+            margin:0;
+        }
+
+        .box{
+            background:white;
+            padding:40px;
+            border-radius:16px;
+            width:360px;
+            box-shadow:0 8px 24px rgba(0,0,0,.08);
+        }
+
+        h2{
+            text-align:center;
+            margin-bottom:25px;
+            color:#0f172a;
+        }
+
+        input{
+            width:100%;
+            padding:12px;
+            margin:8px 0;
+            box-sizing:border-box;
+            border:1px solid #dbe2ea;
+            border-radius:10px;
+            outline:none;
+        }
+
+        input:focus{
+            border-color:#2d89ef;
+        }
+
+        button{
+            width:100%;
+            padding:12px;
+            background:#2d89ef;
+            color:white;
+            border:none;
+            cursor:pointer;
+            margin-top:10px;
+            border-radius:10px;
+            font-weight:bold;
+        }
+
+        button:hover{
+            background:#1f6ed4;
+        }
+
+        #msg{
+            text-align:center;
+            margin-top:15px;
+            font-weight:bold;
+            color:#ef4444;
+        }
+
+        .cadastro-link{
+            text-align:center;
+            margin-top:18px;
+            font-size:14px;
+            color:#64748b;
+        }
+
+        .cadastro-link a{
+            color:#2d89ef;
+            text-decoration:none;
+            font-weight:bold;
+        }
+
+        .cadastro-link a:hover{
+            text-decoration:underline;
+        }
+
+    </style>
+</head>
+
+<body>
+
+<div class="box">
+
+    <h2>Login App Van</h2>
+
+    <form action="/login/login" method="post">
+
+        <input type="email" name="email" placeholder="Email" required>
+
+        <input type="password" name="senha" placeholder="Senha" required>
+
+        <button type="submit">Entrar</button>
+
+    </form>
+
+    <p class="cadastro-link">
+        Não tem conta?
+        <a href="cadastro-cliente.html">Criar Conta</a>
+    </p>
+
+    <p id="msg"></p>
+
+</div>
+
+</body>
+</html>

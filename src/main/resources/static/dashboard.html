@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard App Van</title>
+
+    <style>
+        *{
+            margin:0;
+            padding:0;
+            box-sizing:border-box;
+        }
+
+        body{
+            font-family:Arial, sans-serif;
+            background:#f5f7fb;
+            display:flex;
+            color:#1f2937;
+        }
+
+        .sidebar{
+            width:250px;
+            height:100vh;
+            background:linear-gradient(180deg,#111827,#1f2937);
+            padding:25px;
+            position:fixed;
+            left:0;
+            top:0;
+        }
+
+        .logo{
+            color:white;
+            font-size:28px;
+            font-weight:bold;
+            margin-bottom:35px;
+            text-align:center;
+        }
+
+        .menu a{
+            display:block;
+            padding:14px;
+            margin-bottom:10px;
+            text-decoration:none;
+            color:#d1d5db;
+            border-radius:10px;
+            transition:0.2s;
+        }
+
+        .menu a:hover{
+            background:#374151;
+            color:white;
+        }
+
+        .main{
+            margin-left:250px;
+            width:100%;
+            padding:30px;
+        }
+
+        .topbar{
+            background:white;
+            padding:18px 25px;
+            border-radius:14px;
+            box-shadow:0 5px 18px rgba(0,0,0,0.05);
+            display:flex;
+            justify-content:space-between;
+            align-items:center;
+            margin-bottom:30px;
+        }
+
+        .topbar h1{
+            font-size:26px;
+        }
+
+        .user{
+            background:#2d89ef;
+            color:white;
+            padding:10px 16px;
+            border-radius:10px;
+            font-size:14px;
+        }
+
+        .cards{
+            display:grid;
+            grid-template-columns:repeat(auto-fit,minmax(230px,1fr));
+            gap:20px;
+        }
+
+        .card{
+            background:white;
+            padding:25px;
+            border-radius:16px;
+            box-shadow:0 8px 20px rgba(0,0,0,0.05);
+            transition:0.2s;
+        }
+
+        .card:hover{
+            transform:translateY(-4px);
+        }
+
+        .card h3{
+            font-size:15px;
+            color:#6b7280;
+            margin-bottom:10px;
+        }
+
+        .card p{
+            font-size:32px;
+            font-weight:bold;
+            color:#2d89ef;
+        }
+
+        .section{
+            margin-top:30px;
+            background:white;
+            padding:25px;
+            border-radius:16px;
+            box-shadow:0 8px 20px rgba(0,0,0,0.05);
+        }
+
+        .section h2{
+            margin-bottom:15px;
+            font-size:20px;
+        }
+
+        ul{
+            list-style:none;
+        }
+
+        li{
+            padding:10px 0;
+            border-bottom:1px solid #eee;
+        }
+    </style>
+</head>
+
+<body>
+
+<div class="sidebar">
+
+    <div class="logo">🚐 App Van</div>
+
+    <div class="menu">
+        <a href="dashboard.html">Dashboard</a>
+        <a href="cadastro.html">Motoristas</a>
+        <a href="alunos.html">Alunos</a>
+        <a href="rotas.html">Rotas</a>
+        <a href="financeiro.html">Financeiro</a>
+        <a href="login.html">Sair</a>
+    </div>
+
+</div>
+
+<div class="main">
+
+    <div class="topbar">
+        <h1>Painel Administrativo</h1>
+        <div class="user">Administrador</div>
+    </div>
+
+    <div class="cards">
+
+        <div class="card">
+            <h3>Total Motoristas</h3>
+            <p id="motoristas">0</p>
+        </div>
+
+        <div class="card">
+            <h3>Total Alunos</h3>
+            <p id="alunos">0</p>
+        </div>
+
+        <div class="card">
+            <h3>Receita Prevista</h3>
+            <p id="receita">R$ 0</p>
+        </div>
+
+        <div class="card">
+            <h3>Pagamentos Pendentes</h3>
+            <p id="pendentes">0</p>
+        </div>
+
+    </div>
+
+    <div class="section">
+        <h2>Resumo do Sistema</h2>
+
+        <ul>
+            <li>✔ Sistema online e funcionando</li>
+            <li>✔ Cadastro de alunos ativo</li>
+            <li>✔ Controle financeiro ativo</li>
+            <li>✔ Rotas disponíveis</li>
+            <li>✔ Projeto em evolução profissional</li>
+        </ul>
+
+    </div>
+
+</div>
+
+<script>
+
+    fetch("/motoristas")
+        .then(r=>r.json())
+        .then(lista=>{
+            document.getElementById("motoristas").innerHTML = lista.length;
+        });
+
+    fetch("/alunos")
+        .then(r=>r.json())
+        .then(lista=>{
+
+            document.getElementById("alunos").innerHTML = lista.length;
+
+            let receita = 0;
+            let pendentes = 0;
+
+            lista.forEach(a=>{
+
+                receita += Number(a.mensalidade || 0);
+
+                if(a.statusPagamento !== "PAGO"){
+                    pendentes++;
+                }
+
+            });
+
+            document.getElementById("receita").innerHTML = "R$ " + receita;
+            document.getElementById("pendentes").innerHTML = pendentes;
+
+        });
+
+</script>
+
+</body>
+</html>

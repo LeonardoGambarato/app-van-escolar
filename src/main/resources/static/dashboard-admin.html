@@ -1,0 +1,303 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <title>Admin App Van</title>
+
+    <style>
+
+        *{
+            margin:0;
+            padding:0;
+            box-sizing:border-box;
+            font-family:Arial, sans-serif;
+        }
+
+        body{
+            display:flex;
+            background:#eef2f7;
+        }
+
+        /* MENU */
+
+        .sidebar{
+            width:240px;
+            height:100vh;
+            background:linear-gradient(180deg,#0f172a,#1e293b);
+            color:white;
+            padding:30px 20px;
+            position:fixed;
+            left:0;
+            top:0;
+        }
+
+        .logo{
+            font-size:32px;
+            margin-bottom:30px;
+        }
+
+        .sidebar h2{
+            margin-bottom:35px;
+            font-size:34px;
+        }
+
+        .sidebar a{
+            display:block;
+            color:white;
+            text-decoration:none;
+            padding:14px;
+            margin-bottom:12px;
+            border-radius:10px;
+            transition:0.2s;
+        }
+
+        .sidebar a:hover{
+            background:rgba(255,255,255,0.12);
+        }
+
+        /* CONTEUDO */
+
+        .main{
+            margin-left:240px;
+            padding:30px;
+            width:100%;
+        }
+
+        .topo{
+            background:white;
+            padding:22px;
+            border-radius:18px;
+            box-shadow:0 8px 25px rgba(0,0,0,0.05);
+            margin-bottom:25px;
+            display:flex;
+            justify-content:space-between;
+            align-items:center;
+        }
+
+        .topo h1{
+            font-size:36px;
+            color:#0f172a;
+        }
+
+        .badge{
+            background:#2d89ef;
+            color:white;
+            padding:10px 18px;
+            border-radius:10px;
+            font-weight:bold;
+        }
+
+        /* CARDS */
+
+        .cards{
+            display:grid;
+            grid-template-columns:repeat(4,1fr);
+            gap:20px;
+            margin-bottom:25px;
+        }
+
+        .card{
+            background:white;
+            padding:25px;
+            border-radius:18px;
+            box-shadow:0 8px 25px rgba(0,0,0,0.05);
+        }
+
+        .card h3{
+            color:#64748b;
+            font-size:18px;
+            margin-bottom:10px;
+        }
+
+        .card p{
+            font-size:38px;
+            font-weight:bold;
+            color:#2d89ef;
+        }
+
+        /* TABELA */
+
+        .box{
+            background:white;
+            padding:25px;
+            border-radius:18px;
+            box-shadow:0 8px 25px rgba(0,0,0,0.05);
+        }
+
+        .box h2{
+            margin-bottom:20px;
+            color:#0f172a;
+        }
+
+        table{
+            width:100%;
+            border-collapse:collapse;
+        }
+
+        th,td{
+            padding:16px;
+            text-align:left;
+            border-bottom:1px solid #eee;
+        }
+
+        th{
+            color:#64748b;
+        }
+
+        .status{
+            padding:6px 12px;
+            border-radius:20px;
+            font-size:14px;
+            font-weight:bold;
+            display:inline-block;
+        }
+
+        .ativo{
+            background:#dcfce7;
+            color:#166534;
+        }
+
+        .premium{
+            background:#dbeafe;
+            color:#1d4ed8;
+        }
+
+        button{
+            padding:8px 14px;
+            border:none;
+            background:#2d89ef;
+            color:white;
+            border-radius:8px;
+            cursor:pointer;
+        }
+
+        button:hover{
+            opacity:0.9;
+        }
+
+    </style>
+</head>
+
+<body>
+
+<div class="sidebar">
+
+    <div class="logo">🚐</div>
+    <h2>App Van</h2>
+
+    <a href="#">Dashboard</a>
+    <a href="#">Motoristas</a>
+    <a href="#">Planos</a>
+    <a href="#">Financeiro</a>
+    <a href="/login.html">Sair</a>
+
+</div>
+
+<div class="main">
+
+    <div class="topo">
+        <h1>Painel Administrativo</h1>
+        <div class="badge">Administrador</div>
+    </div>
+
+    <div class="cards">
+
+        <div class="card">
+            <h3>Total Motoristas</h3>
+            <p id="total">0</p>
+        </div>
+
+        <div class="card">
+            <h3>Clientes Ativos</h3>
+            <p id="ativos">0</p>
+        </div>
+
+        <div class="card">
+            <h3>Planos Premium</h3>
+            <p id="premium">0</p>
+        </div>
+
+        <div class="card">
+            <h3>Receita Mensal</h3>
+            <p id="receita">R$ 0</p>
+        </div>
+
+    </div>
+
+    <div class="box">
+
+        <h2>Motoristas Cadastrados</h2>
+
+        <table>
+
+            <thead>
+            <tr>
+                <th>ID</th>
+                <th>Nome</th>
+                <th>Email</th>
+                <th>Status</th>
+                <th>Plano</th>
+                <th>Ação</th>
+            </tr>
+            </thead>
+
+            <tbody id="tabela"></tbody>
+
+        </table>
+
+    </div>
+
+</div>
+
+<script>
+
+    function carregar(){
+
+        fetch("/usuarios")
+            .then(r=>r.json())
+            .then(lista=>{
+
+                let total = lista.length;
+                let ativos = 0;
+                let premium = 0;
+                let receita = 0;
+                let html = "";
+
+                lista.forEach(u=>{
+
+                    if(u.tipoUsuario == "MOTORISTA"){
+
+                        ativos++;
+                        receita += 49;
+
+                        html += `
+<tr>
+<td>${u.id}</td>
+<td>${u.nome}</td>
+<td>${u.email}</td>
+<td><span class="status ativo">Ativo</span></td>
+<td><span class="status premium">Básico</span></td>
+<td><button>Ver</button></td>
+</tr>
+`;
+
+                    }
+
+                });
+
+                document.getElementById("total").innerHTML = total-1;
+                document.getElementById("ativos").innerHTML = ativos;
+                document.getElementById("premium").innerHTML = premium;
+                document.getElementById("receita").innerHTML = "R$ " + receita;
+                document.getElementById("tabela").innerHTML = html;
+
+            });
+
+    }
+
+    carregar();
+
+</script>
+
+</body>
+</html>

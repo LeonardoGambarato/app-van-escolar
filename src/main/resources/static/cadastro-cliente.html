@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <title>Criar Conta</title>
+
+    <style>
+        body{
+            font-family:Arial;
+            background:#eef2f7;
+            display:flex;
+            justify-content:center;
+            align-items:center;
+            height:100vh;
+        }
+
+        .box{
+            background:white;
+            padding:40px;
+            border-radius:16px;
+            width:420px;
+            box-shadow:0 8px 24px rgba(0,0,0,.08);
+        }
+
+        h2{
+            text-align:center;
+            margin-bottom:25px;
+        }
+
+        input{
+            width:100%;
+            padding:12px;
+            margin-bottom:12px;
+            border:1px solid #ddd;
+            border-radius:10px;
+        }
+
+        button{
+            width:100%;
+            padding:12px;
+            border:none;
+            background:#2d89ef;
+            color:white;
+            border-radius:10px;
+            font-weight:bold;
+            cursor:pointer;
+        }
+
+        button:hover{
+            opacity:.9;
+        }
+    </style>
+</head>
+
+<body>
+
+<div class="box">
+
+    <h2>Criar Conta</h2>
+
+    <input id="nome" placeholder="Nome completo">
+    <input id="email" placeholder="Email">
+    <input id="senha" placeholder="Senha">
+    <input id="telefone" placeholder="Telefone">
+    <input id="cpf" placeholder="CPF">
+
+    <button onclick="criarConta()">Criar Conta</button>
+
+</div>
+
+<script>
+
+    function criarConta(){
+
+        let usuario = {
+            nome:nome.value,
+            email:email.value,
+            senha:senha.value,
+            telefone:telefone.value,
+            cpf:cpf.value
+        };
+
+        fetch("/usuarios/criar-conta",{
+            method:"POST",
+            headers:{
+                "Content-Type":"application/json"
+            },
+            body:JSON.stringify(usuario)
+        })
+            .then(()=>{
+
+                alert("Conta criada com sucesso!");
+                window.location.href="login.html";
+
+            });
+
+    }
+
+</script>
+
+</body>
+</html>
