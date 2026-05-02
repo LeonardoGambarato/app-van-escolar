@@ -43,4 +43,6 @@ public class Aluno {
     @Column(name = "usuario_id")
     private Integer usuarioId;
 
+    private Double latitude;
+    private Double longitude;
 }

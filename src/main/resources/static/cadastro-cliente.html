@@ -69,33 +69,40 @@
 </div>
 
 <script>
-
     function criarConta(){
 
         let usuario = {
-            nome:nome.value,
-            email:email.value,
-            senha:senha.value,
-            telefone:telefone.value,
-            cpf:cpf.value
+            nome: nome.value,
+            email: email.value,
+            senha: senha.value,
+            telefone: telefone.value,
+            cpf: cpf.value
         };
 
-        fetch("/usuarios/criar-conta",{
+        fetch("/usuarios/criar-conta", {
             method:"POST",
             headers:{
                 "Content-Type":"application/json"
             },
-            body:JSON.stringify(usuario)
+            body: JSON.stringify(usuario)
         })
-            .then(()=>{
+            .then(response => {
 
+                if(!response.ok){
+                    throw new Error("Erro ao criar conta");
+                }
+
+                return response.json();
+            })
+            .then(data => {
                 alert("Conta criada com sucesso!");
                 window.location.href="login.html";
-
+            })
+            .catch(error => {
+                alert("Falha ao cadastrar");
+                console.error(error);
             });
-
     }
-
 </script>
 
 </body>

@@ -5,6 +5,7 @@ import com.appvan.backend.model.Usuario;
 import com.appvan.backend.repository.MotoristaRepository;
 import com.appvan.backend.repository.UsuarioRepository;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 
 import java.util.List;
 
@@ -15,11 +16,14 @@ public class MotoristaController {
 
     private final MotoristaRepository repository;
     private final UsuarioRepository usuarioRepository;
+    private final BCryptPasswordEncoder passwordEncoder;
 
     public MotoristaController(MotoristaRepository repository,
-                               UsuarioRepository usuarioRepository) {
+                               UsuarioRepository usuarioRepository,
+                               BCryptPasswordEncoder passwordEncoder) {
         this.repository = repository;
         this.usuarioRepository = usuarioRepository;
+        this.passwordEncoder = passwordEncoder;
     }
 
     @GetMapping
@@ -28,7 +32,7 @@ public class MotoristaController {
     }
 
     @PostMapping
-    public Motorista salvar(@RequestBody Motorista motorista) {
+    public Motorista salvar(@ModelAttribute Motorista motorista) {
 
         Motorista salvo = repository.save(motorista);
 
@@ -37,9 +41,9 @@ public class MotoristaController {
         usuario.setNome(motorista.getNome());
         usuario.setEmail(motorista.getEmail());
 
-        usuario.setSenha("123456");
+        usuario.setSenha(passwordEncoder.encode("123456"));
 
-        usuario.setTipoUsuario("MOTORISTA");
+        usuario.setRole("MOTORISTA");
         usuario.setAtivo(true);
 
         usuarioRepository.save(usuario);

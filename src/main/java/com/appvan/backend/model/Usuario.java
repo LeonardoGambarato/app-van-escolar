@@ -18,8 +18,8 @@ public class Usuario {
 
     private String senha;
 
-    @Column(name = "tipo_usuario")
-    private String tipoUsuario;
+    @Column(name = "role")
+    private String role;
 
     private Boolean ativo;
 }

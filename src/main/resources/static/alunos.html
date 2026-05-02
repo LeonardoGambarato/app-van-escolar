@@ -238,7 +238,7 @@
 
     <div class="menu">
         <a href="dashboard.html">Dashboard</a>
-        <a href="cadastro.html">Motoristas</a>
+        <a href="motorista.html">Motoristas</a>
         <a href="alunos.html">Alunos</a>
         <a href="rotas.html">Rotas</a>
         <a href="financeiro.html">Financeiro</a>
@@ -335,7 +335,14 @@
     let listaGlobal = [];
     let editandoId = null;
 
-    function salvar(){
+    async function salvar(){
+
+        let coords = await buscarCoordenadas(endereco.value);
+
+        if(!coords){
+            alert("Endereço inválido ou não encontrado.");
+            return;
+        }
 
         let aluno = {
             nome: nome.value,
@@ -345,7 +352,9 @@
             escola: escola.value,
             turno: turno.value,
             mensalidade: mensalidade.value,
-            diaVencimento: diaVencimento.value
+            diaVencimento: diaVencimento.value,
+            latitude: coords.lat,
+            longitude: coords.lon
         };
 
         let metodo = "POST";
@@ -357,10 +366,6 @@
             url = "/alunos/" + editandoId;
         }
 
-        console.log("ID:", editandoId);
-        console.log("Método:", metodo);
-        console.log("URL:", url);
-        console.log("Aluno:", aluno);
         fetch(url,{
             method: metodo,
             headers:{
@@ -369,13 +374,11 @@
             body: JSON.stringify(aluno)
         })
             .then(()=>{
-
                 limparCampos();
                 editandoId = null;
-                document.getElementById("btnSalvar").innerHTML = "Salvar";
-
+                btnSalvar.innerHTML = "Salvar Aluno";
                 carregar();
-
+                alert("Aluno salvo com coordenadas!");
             });
 
     }
@@ -500,6 +503,27 @@
     }
 
     carregar();
+
+    async function buscarCoordenadas(endereco){
+
+        let url = "https://nominatim.openstreetmap.org/search?format=json&limit=1&q="
+            + encodeURIComponent(endereco);
+
+        let resposta = await fetch(url);
+
+        let dados = await resposta.json();
+
+        if(dados.length > 0){
+
+            return {
+                lat: dados[0].lat,
+                lon: dados[0].lon
+            };
+
+        }
+
+        return null;
+    }
 
 </script>
 
