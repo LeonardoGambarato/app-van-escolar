@@ -175,6 +175,11 @@
             opacity:0.9;
         }
 
+        .bloqueado{
+            background:#fee2e2;
+            color:#991b1b;
+        }
+
     </style>
 </head>
 
@@ -254,41 +259,52 @@
     function carregar(){
 
         fetch("/usuarios")
-            .then(r=>r.json())
-            .then(lista=>{
+            .then(r => r.json())
+            .then(lista => {
 
-                let total = lista.length;
+                let total = 0;
                 let ativos = 0;
                 let premium = 0;
+                let inadimplentes = 0;
                 let receita = 0;
                 let html = "";
 
-                lista.forEach(u=>{
+                lista.forEach(u => {
 
-                    if(u.role == "MOTORISTA"){
+                    if(u.role === "MOTORISTA"){
 
-                        ativos++;
-                        receita += 49;
+                        total++;
+
+                        if(u.ativo){
+                            ativos++;
+                            receita += 49;
+                        }else{
+                            inadimplentes++;
+                        }
+
+                        let plano = "Básico";
 
                         html += `
 <tr>
-<td>${u.id}</td>
 <td>${u.nome}</td>
 <td>${u.email}</td>
-<td><span class="status ativo">Ativo</span></td>
-<td><span class="status premium">Básico</span></td>
-<td><button>Ver</button></td>
+<td><span class="status premium">${plano}</span></td>
+<td>
+<span class="status ${u.ativo ? 'ativo' : 'bloqueado'}">
+${u.ativo ? 'Ativo' : 'Pendente'}
+</span>
+</td>
+<td>${u.id}</td>
 </tr>
 `;
-
                     }
 
                 });
 
-                document.getElementById("total").innerHTML = total-1;
-                document.getElementById("ativos").innerHTML = ativos;
-                document.getElementById("premium").innerHTML = premium;
-                document.getElementById("receita").innerHTML = "R$ " + receita;
+                document.getElementById("total").innerText = total;
+                document.getElementById("ativos").innerText = ativos;
+                document.getElementById("premium").innerText = inadimplentes;
+                document.getElementById("receita").innerText = "R$ " + receita;
                 document.getElementById("tabela").innerHTML = html;
 
             });

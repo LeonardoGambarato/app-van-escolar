@@ -45,4 +45,13 @@ public class Aluno {
 
     private Double latitude;
     private Double longitude;
+
+    @Column(name = "motorista_id")
+    private Integer motoristaId;
+
+    @Column(name = "responsavel_id")
+    private Integer responsavelId;
+
+    @Column(name = "rota_id")
+    private Integer rotaId;
 }

@@ -12,4 +12,6 @@ public interface AlunoRepository extends JpaRepository<Aluno, Integer> {
     List<Aluno> findByStatusPagamento(String statusPagamento);
 
     List<Aluno> findByUsuarioId(Integer usuarioId);
+
+    List<Aluno> findByMotoristaId(Integer motoristaId);
 }

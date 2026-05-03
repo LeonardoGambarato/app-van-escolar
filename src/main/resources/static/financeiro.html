@@ -272,50 +272,25 @@
     }
     function carregar(){
 
-        fetch("/alunos")
-            .then(r=>r.json())
-            .then(lista=>{
+        Promise.all([
+            fetch("/api/financeiro?motoristaId=1").then(r => r.json()),
+            fetch("/alunos").then(r => r.json())
+        ])
+            .then(([financeiro, lista]) => {
 
                 let filtro = document.getElementById("filtro").value;
 
-                let total = 0;
-                let recebidosHoje = 0;
-                let atrasados = 0;
-                let venceHoje = 0;
+                document.getElementById("total").innerHTML =
+                    "R$ " + financeiro.recebido;
 
-                let recebidoValor = 0;
-                let pendenteValor = 0;
+                document.getElementById("recebidoHoje").innerHTML =
+                    financeiro.pagos;
 
-                let hoje = new Date().getDate();
+                document.getElementById("atrasados").innerHTML =
+                    financeiro.devendo;
 
-                lista.forEach(a=>{
-
-                    let valor = Number(a.mensalidade || 0);
-
-                    total += valor;
-
-                    if(a.statusPagamento == "PAGO"){
-
-                        recebidosHoje++;
-                        recebidoValor += valor;
-
-                    }else{
-
-                        pendenteValor += valor;
-
-                        let venc = Number(a.diaVencimento || 0);
-
-                        if(venc < hoje){
-                            atrasados++;
-                        }
-
-                        if(venc == hoje){
-                            venceHoje++;
-                        }
-
-                    }
-
-                });
+                document.getElementById("venceHoje").innerHTML =
+                    financeiro.pendente;
 
                 if(filtro){
                     lista = lista.filter(a => a.statusPagamento == filtro);
@@ -323,40 +298,38 @@
 
                 let html = "";
 
-                lista.forEach(a=>{
+                lista.forEach(a => {
 
                     html += `
-<tr>
-<td>${a.nome}</td>
-<td>R$ ${a.mensalidade || 0}</td>
-<td>${calcularSituacao(a)}</td>
-<td>
+            <tr>
+                <td>${a.nome}</td>
+                <td>R$ ${a.mensalidade || 0}</td>
+                <td>${calcularSituacao(a)}</td>
+                <td>
 
-${
+                ${
                         a.statusPagamento == "PAGO"
                             ?
                             `<button class="reverter" onclick="voltar(${a.id})">↺ Voltar</button>`
                             :
                             `
-<button class="pago" onclick="pagar(${a.id})">✓ Pago</button>
-<button class="zap" onclick="cobrar(${a.id})">📲 Cobrar</button>
-`
+                    <button class="pago" onclick="pagar(${a.id})">✓ Pago</button>
+                    <button class="zap" onclick="cobrar(${a.id})">📲 Cobrar</button>
+                    `
                     }
 
-</td>
-</tr>
-`;
+                </td>
+            </tr>
+            `;
 
                 });
 
                 tabela.innerHTML = html;
 
-                document.getElementById("total").innerHTML = "R$ " + total;
-                document.getElementById("recebidoHoje").innerHTML = recebidosHoje;
-                document.getElementById("atrasados").innerHTML = atrasados;
-                document.getElementById("venceHoje").innerHTML = venceHoje;
-
-                desenharGrafico(recebidoValor, pendenteValor);
+                desenharGrafico(
+                    financeiro.recebido,
+                    financeiro.pendente
+                );
 
             });
 

@@ -18,6 +18,10 @@ public class Usuario {
 
     private String senha;
 
+    private String telefone;
+
+    private String cpf;
+
     @Column(name = "role")
     private String role;
 
